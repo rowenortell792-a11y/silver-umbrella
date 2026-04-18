@@ -1,0 +1,13 @@
+{
+  "name": "ggc-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for validating GGC Literary Format files",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node src/bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  }
+}
