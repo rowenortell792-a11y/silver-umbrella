@@ -1,331 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GGC Pulse Engine — Phase 2 | Control System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: #0a0a0a;
-            color: #00ff95;
-            font-family: 'Courier New', monospace;
-            transition: box-shadow 0.05s linear;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            border-radius: 32px;
-            padding: 30px;
-            border: 1px solid #00ff9533;
-        }
-        
-        h1 {
-            text-align: center;
-            font-size: 2rem;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-            transition: transform 0.05s linear;
-        }
-        
-        .pulse-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .pulse-card {
-            background: #050505;
-            border: 1px solid #00ff95;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .pulse-label {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #00ff9588;
-            margin-bottom: 10px;
-        }
-        
-        .pulse-value {
-            font-size: 32px;
-            font-weight: bold;
-        }
-        
-        canvas {
-            width: 100%;
-            height: 150px;
-            background: #000;
-            border: 1px solid #00ff95;
-            margin-bottom: 30px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-        
-        button {
-            background: #00ff9511;
-            border: 1px solid #00ff95;
-            color: #00ff95;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        button:hover {
-            background: #00ff9533;
-        }
-        
-        .bpm-control {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        input {
-            background: #050505;
-            border: 1px solid #00ff95;
-            color: #00ff95;
-            padding: 8px;
-            font-family: monospace;
-            text-align: center;
-            width: 80px;
-        }
-        
-        .status {
-            text-align: center;
-            font-size: 11px;
-            color: #00ff9588;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GGC Pulse Engine — Core System</title>
+
+<style>
+body {
+    background: #0a0a0a;
+    color: #00ff95;
+    font-family: monospace;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    letter-spacing: 4px;
+}
+
+.value {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+canvas {
+    background: black;
+    border: 1px solid #00ff95;
+    display: block;
+    margin: 20px auto;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1 id="title">⚡ PRODIGY PULSE ENGINE ⚡</h1>
-        
-        <div class="pulse-grid">
-            <div class="pulse-card">
-                <div class="pulse-label">BASE</div>
-                <div class="pulse-value" id="baseValue">0</div>
-                <div style="font-size: 9px;">breathing rhythm</div>
-            </div>
-            <div class="pulse-card">
-                <div class="pulse-label">SLOW</div>
-                <div class="pulse-value" id="slowValue">0</div>
-                <div style="font-size: 9px;">atmosphere</div>
-            </div>
-            <div class="pulse-card">
-                <div class="pulse-label">FAST</div>
-                <div class="pulse-value" id="fastValue">0</div>
-                <div style="font-size: 9px;">tension</div>
-            </div>
-            <div class="pulse-card">
-                <div class="pulse-label">SPIKE</div>
-                <div class="pulse-value" id="spikeValue">0</div>
-                <div style="font-size: 9px;">impact moments</div>
-            </div>
-        </div>
-        
-        <canvas id="waveform" width="800" height="150"></canvas>
-        
-        <div class="bpm-control">
-            <label>BPM CONTROL → </label>
-            <input type="number" id="bpmInput" value="12" min="1" max="120" step="1">
-            <button onclick="setBPM()">SET RHYTHM</button>
-        </div>
-        
-        <div class="controls">
-            <button onclick="setBPMTo(60)">🔥 INTENSE (60 BPM)</button>
-            <button onclick="setBPMTo(12)">🌊 CALM (12 BPM)</button>
-            <button onclick="setBPMTo(30)">⚡ ACTION (30 BPM)</button>
-        </div>
-        
-        <div class="status">
-            ⚡ SYSTEM ACTIVE | PULSE DRIVING ALL BEHAVIOR | NO HARDCODE
-        </div>
-    </div>
-    
-    <script>
-        // ============================================
-        // PHASE 2: PULSE CONTROL SYSTEM
-        // ============================================
-        
-        // PULSE CHANNELS
-        const Pulse = {
-            base: 0,
-            slow: 0,
-            fast: 0,
-            spike: 0,
-            bpm: 12
-        };
-        
-        // Waveform storage
-        let waveHistory = [];
-        const MAX_HISTORY = 100;
-        
-        // DOM elements
-        const canvas = document.getElementById('waveform');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 800;
-        canvas.height = 150;
-        
-        // ============================================
-        // 1. UPDATE PULSE — THE ENGINE
-        // ============================================
-        let lastTimestamp = 0;
-        
-        function updatePulse(now) {
-            const t = now / 1000; // seconds
-            const baseFreq = Pulse.bpm / 60;
-            
-            // Core pulse channels
-            Pulse.base = Math.sin(t * baseFreq * Math.PI * 2);
-            Pulse.slow = Math.sin(t * baseFreq * 0.5 * Math.PI * 2);
-            Pulse.fast = Math.sin(t * baseFreq * 3 * Math.PI * 2);
-            // Spike = sharp heartbeat impact
-            Pulse.spike = Math.max(0, Math.abs(Math.sin(t * baseFreq * Math.PI * 2)) ** 5);
-        }
-        
-        // ============================================
-        // 2. LISTENERS — EVERYTHING RESPONDS TO PULSE
-        // ============================================
-        
-        // UI Module
-        function updateUI() {
-            document.getElementById('baseValue').innerText = (Pulse.base * 50 + 50).toFixed(0);
-            document.getElementById('slowValue').innerText = (Pulse.slow * 50 + 50).toFixed(0);
-            document.getElementById('fastValue').innerText = (Pulse.fast * 50 + 50).toFixed(0);
-            document.getElementById('spikeValue').innerText = (Pulse.spike * 100).toFixed(0);
-        }
-        
-        // Glow Module — body shadow pulses with spike
-        function updateGlow() {
-            const intensity = 10 + Pulse.spike * 70;
-            document.body.style.boxShadow = `0 0 ${intensity}px #00ff95`;
-            document.body.style.transition = 'box-shadow 0.05s linear';
-        }
-        
-        // Text Module — title scales with slow pulse
-        function updateText() {
-            const scale = 1 + Pulse.slow * 0.1;
-            const title = document.getElementById('title');
-            if (title) {
-                title.style.transform = `scale(${scale})`;
-                title.style.transition = 'transform 0.05s linear';
-            }
-        }
-        
-        // Waveform Module — draws all channels combined
-        function updateWaveform() {
-            // Combine channels for rich waveform
-            let combined = (Pulse.base * 0.4) + (Pulse.slow * 0.2) + (Pulse.fast * 0.3) + (Pulse.spike * 0.5);
-            combined = Math.max(-1, Math.min(1, combined));
-            
-            waveHistory.push(combined);
-            if (waveHistory.length > MAX_HISTORY) waveHistory.shift();
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw grid
-            ctx.strokeStyle = '#00ff9522';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i < 4; i++) {
-                const y = canvas.height / 2 + (i - 1.5) * 30;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-            
-            // Draw waveform
-            ctx.beginPath();
-            for (let i = 0; i < waveHistory.length; i++) {
-                const x = (i / (MAX_HISTORY - 1)) * canvas.width;
-                const y = canvas.height / 2 + waveHistory[i] * (canvas.height / 2.5);
-                ctx.lineTo(x, y);
-            }
-            ctx.strokeStyle = '#00ff95';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            // Draw spike highlights
-            if (Pulse.spike > 0.3) {
-                ctx.fillStyle = `rgba(0, 255, 149, ${Pulse.spike * 0.3})`;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-        }
-        
-        // ============================================
-        // 3. MASTER LOOP — CLEAN SYSTEM
-        // ============================================
-        function loop() {
-            const now = Date.now();
-            updatePulse(now);
-            updateUI();
-            updateGlow();
-            updateText();
-            updateWaveform();
-            requestAnimationFrame(loop);
-        }
-        
-        // ============================================
-        // 4. CONTROL — CHANGE BPM
-        // ============================================
-        function setBPM() {
-            const input = document.getElementById('bpmInput');
-            let newBPM = parseInt(input.value);
-            if (isNaN(newBPM)) newBPM = 12;
-            if (newBPM < 1) newBPM = 1;
-            if (newBPM > 120) newBPM = 120;
-            Pulse.bpm = newBPM;
-            input.value = newBPM;
-            
-            // Visual feedback
-            const status = document.querySelector('.status');
-            status.innerHTML = `⚡ BPM CHANGED TO ${newBPM} | PULSE RHYTHM UPDATED`;
-            setTimeout(() => {
-                status.innerHTML = '⚡ SYSTEM ACTIVE | PULSE DRIVING ALL BEHAVIOR | NO HARDCODE';
-            }, 2000);
-        }
-        
-        function setBPMTo(bpm) {
-            Pulse.bpm = bpm;
-            document.getElementById('bpmInput').value = bpm;
-            const status = document.querySelector('.status');
-            status.innerHTML = `⚡ BPM SET TO ${bpm} | SYSTEM RESPONDING`;
-            setTimeout(() => {
-                status.innerHTML = '⚡ SYSTEM ACTIVE | PULSE DRIVING ALL BEHAVIOR | NO HARDCODE';
-            }, 2000);
-        }
-        
-        // Initialize
-        for (let i = 0; i < MAX_HISTORY; i++) waveHistory.push(0);
-        document.getElementById('bpmInput').value = Pulse.bpm;
-        
-        // Start the engine
-        loop();
-        
-        console.log('🔥 PHASE 2 ACTIVE — Pulse is now a control system');
-    </script>
+
+<h1 id="title">⚡ PULSE ENGINE ⚡</h1>
+
+<div class="value" id="pulseValue">0</div>
+
+<canvas id="wave" width="600" height="150"></canvas>
+
+<script>
+
+// ==============================
+// 1. PULSE ENGINE (CORE)
+// ==============================
+const Pulse = {
+    base: 0,
+    slow: 0,
+    fast: 0,
+    spike: 0,
+    bpm: 30
+};
+
+// ==============================
+// 2. SYSTEM STATE
+// ==============================
+const System = {
+    mode: "idle"
+};
+
+function updateSystemState() {
+    if (Pulse.bpm < 15) System.mode = "idle";
+    else if (Pulse.bpm < 30) System.mode = "build";
+    else if (Pulse.bpm < 60) System.mode = "action";
+    else System.mode = "chaos";
+}
+
+// ==============================
+// 3. EVENT SYSTEM
+// ==============================
+const Events = {
+    lastSpike: 0,
+    threshold: 0.8
+};
+
+function detectEvents() {
+    if (Pulse.spike > Events.threshold && Events.lastSpike === 0) {
+        triggerSpikeEvent();
+        Events.lastSpike = 1;
+    }
+
+    if (Pulse.spike < 0.2) {
+        Events.lastSpike = 0;
+    }
+}
+
+function triggerSpikeEvent() {
+    console.log("💥 SPIKE", System.mode);
+
+    playKick();
+
+    // flash effect
+    document.body.style.background = "#001a10";
+    setTimeout(() => {
+        document.body.style.background = "#0a0a0a";
+    }, 100);
+}
+
+// ==============================
+// 4. SCENE SYSTEM
+// ==============================
+const Scene = {
+    current: "intro",
+    timer: 0
+};
+
+function updateScene(dt) {
+    Scene.timer += dt;
+
+    if (Scene.timer > 8) {
+        nextScene();
+        Scene.timer = 0;
+    }
+}
+
+function nextScene() {
+    if (Scene.current === "intro") Scene.current = "build";
+    else if (Scene.current === "build") Scene.current = "action";
+    else if (Scene.current === "action") Scene.current = "chaos";
+    else Scene.current = "intro";
+
+    console.log("🎬 Scene:", Scene.current);
+}
+
+// ==============================
+// 5. AUDIO SYSTEM
+// ==============================
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playKick() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = 60;
+
+    gain.gain.setValueAtTime(1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.2);
+}
+
+// ==============================
+// 6. VISUAL MODULES
+// ==============================
+const canvas = document.getElementById("wave");
+const ctx = canvas.getContext("2d");
+
+let history = [];
+
+function updateUI() {
+    document.getElementById("pulseValue").innerText =
+        Math.floor((Pulse.base + 1) * 50);
+}
+
+function updateGlow() {
+    const glow = 10 + Pulse.spike * 60;
+    document.body.style.boxShadow = `0 0 ${glow}px #00ff95`;
+}
+
+function updateText() {
+    const scale = 1 + Pulse.slow * 0.1;
+    document.getElementById("title").style.transform =
+        `scale(${scale})`;
+}
+
+function updateWave() {
+    let combined =
+        Pulse.base * 0.4 +
+        Pulse.slow * 0.2 +
+        Pulse.fast * 0.3 +
+        Pulse.spike * 0.5;
+
+    history.push(combined);
+    if (history.length > 100) history.shift();
+
+    ctx.clearRect(0, 0, 600, 150);
+
+    ctx.beginPath();
+    history.forEach((v, i) => {
+        let x = i * 6;
+        let y = 75 + v * 50;
+        ctx.lineTo(x, y);
+    });
+
+    ctx.strokeStyle = "#00ff95";
+    ctx.stroke();
+}
+
+// ==============================
+// 7. MODULE SYSTEM
+// ==============================
+const Modules = [];
+
+function registerModule(fn) {
+    Modules.push(fn);
+}
+
+registerModule(updateUI);
+registerModule(updateGlow);
+registerModule(updateText);
+registerModule(updateWave);
+
+// ==============================
+// 8. PULSE UPDATE
+// ==============================
+function updatePulse(t) {
+    let time = t / 1000;
+    let f = Pulse.bpm / 60;
+
+    Pulse.base = Math.sin(time * f * Math.PI * 2);
+    Pulse.slow = Math.sin(time * f * 0.5 * Math.PI * 2);
+    Pulse.fast = Math.sin(time * f * 3 * Math.PI * 2);
+
+    Pulse.spike = Math.max(
+        0,
+        Math.abs(Math.sin(time * f * Math.PI * 2)) ** 5
+    );
+}
+
+// ==============================
+// 9. MAIN LOOP
+// ==============================
+let last = Date.now();
+
+function loop() {
+    let now = Date.now();
+    let dt = (now - last) / 1000;
+    last = now;
+
+    updatePulse(now);
+    updateSystemState();
+    detectEvents();
+    updateScene(dt);
+
+    Modules.forEach(fn => fn());
+
+    requestAnimationFrame(loop);
+}
+
+// START
+loop();
+
+</script>
 </body>
 </html>
