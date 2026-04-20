@@ -1,252 +1,416 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GGC Pulse Engine — Core System</title>
-
-<style>
-body {
-    background: #0a0a0a;
-    color: #00ff95;
-    font-family: monospace;
-    text-align: center;
-    padding: 20px;
-}
-
-h1 {
-    letter-spacing: 4px;
-}
-
-.value {
-    font-size: 48px;
-    margin: 20px 0;
-}
-
-canvas {
-    background: black;
-    border: 1px solid #00ff95;
-    display: block;
-    margin: 20px auto;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GGC Money Train — Phase 7 | Scene Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0a;
+            color: #00ff95;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 280px;
+            background: #050505;
+            border-right: 2px solid #00ff95;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .logo {
+            font-size: 18px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #00ff95;
+            padding-bottom: 15px;
+        }
+        .pulse-card {
+            background: #0a0a0a;
+            border: 1px solid #00ff95;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .frequency {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .score {
+            font-size: 24px;
+        }
+        canvas {
+            width: 100%;
+            height: 80px;
+            background: #000;
+            margin: 10px 0;
+            border: 1px solid #00ff95;
+        }
+        .scene-card {
+            background: #0a0a0a;
+            border: 1px solid #00ff95;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .scene-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .scene-beat {
+            font-size: 11px;
+            color: #00ff9588;
+            margin: 5px 0;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .scene-beat:hover {
+            color: #00ff95;
+            background: #00ff9511;
+        }
+        .editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff95;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #00ff9511;
+            border: 1px solid #00ff95;
+            color: #00ff95;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button:hover {
+            background: #00ff9533;
+        }
+        .content-editor {
+            flex: 1;
+            background: #050505;
+            border: 1px solid #00ff95;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .status-bar {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #00ff95;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .word-1S { color: #555555; }
+        .word-2S { color: #4488aa; }
+        .word-3M { color: #00ff95; }
+        .word-4M { color: #ffaa44; }
+        .word-5M { color: #00ffcc; text-shadow: 0 0 3px #00ffcc; }
+        .word-6X { color: #ff44ff; text-shadow: 0 0 5px #ff44ff; }
+        .word-7X { color: #ffffff; text-shadow: 0 0 8px #ffffff; animation: pulse-white 0.5s infinite; }
+        
+        @keyframes pulse-white {
+            0% { text-shadow: 0 0 5px #ffffff; }
+            100% { text-shadow: 0 0 15px #ffffff; }
+        }
+        
+        .beat-message {
+            background: #0a2a1a;
+            border-left: 3px solid #ffaa44;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+        .beat-message.build { border-left-color: #4488aa; background: #0a1a2a; }
+        .beat-message.action { border-left-color: #ffaa44; background: #2a1a0a; }
+        .beat-message.chaos { border-left-color: #ff44ff; background: #1a0a2a; }
+        .beat-message.release { border-left-color: #00ff95; background: #0a2a1a; }
+    </style>
 </head>
-
 <body>
-
-<h1 id="title">⚡ PULSE ENGINE ⚡</h1>
-
-<div class="value" id="pulseValue">0</div>
-
-<canvas id="wave" width="600" height="150"></canvas>
-
-<script>
-
-// ==============================
-// 1. PULSE ENGINE (CORE)
-// ==============================
-const Pulse = {
-    base: 0,
-    slow: 0,
-    fast: 0,
-    spike: 0,
-    bpm: 30
-};
-
-// ==============================
-// 2. SYSTEM STATE
-// ==============================
-const System = {
-    mode: "idle"
-};
-
-function updateSystemState() {
-    if (Pulse.bpm < 15) System.mode = "idle";
-    else if (Pulse.bpm < 30) System.mode = "build";
-    else if (Pulse.bpm < 60) System.mode = "action";
-    else System.mode = "chaos";
-}
-
-// ==============================
-// 3. EVENT SYSTEM
-// ==============================
-const Events = {
-    lastSpike: 0,
-    threshold: 0.8
-};
-
-function detectEvents() {
-    if (Pulse.spike > Events.threshold && Events.lastSpike === 0) {
-        triggerSpikeEvent();
-        Events.lastSpike = 1;
-    }
-
-    if (Pulse.spike < 0.2) {
-        Events.lastSpike = 0;
-    }
-}
-
-function triggerSpikeEvent() {
-    console.log("💥 SPIKE", System.mode);
-
-    playKick();
-
-    // flash effect
-    document.body.style.background = "#001a10";
-    setTimeout(() => {
-        document.body.style.background = "#0a0a0a";
-    }, 100);
-}
-
-// ==============================
-// 4. SCENE SYSTEM
-// ==============================
-const Scene = {
-    current: "intro",
-    timer: 0
-};
-
-function updateScene(dt) {
-    Scene.timer += dt;
-
-    if (Scene.timer > 8) {
-        nextScene();
-        Scene.timer = 0;
-    }
-}
-
-function nextScene() {
-    if (Scene.current === "intro") Scene.current = "build";
-    else if (Scene.current === "build") Scene.current = "action";
-    else if (Scene.current === "action") Scene.current = "chaos";
-    else Scene.current = "intro";
-
-    console.log("🎬 Scene:", Scene.current);
-}
-
-// ==============================
-// 5. AUDIO SYSTEM
-// ==============================
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playKick() {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = "sine";
-    osc.frequency.value = 60;
-
-    gain.gain.setValueAtTime(1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.2);
-}
-
-// ==============================
-// 6. VISUAL MODULES
-// ==============================
-const canvas = document.getElementById("wave");
-const ctx = canvas.getContext("2d");
-
-let history = [];
-
-function updateUI() {
-    document.getElementById("pulseValue").innerText =
-        Math.floor((Pulse.base + 1) * 50);
-}
-
-function updateGlow() {
-    const glow = 10 + Pulse.spike * 60;
-    document.body.style.boxShadow = `0 0 ${glow}px #00ff95`;
-}
-
-function updateText() {
-    const scale = 1 + Pulse.slow * 0.1;
-    document.getElementById("title").style.transform =
-        `scale(${scale})`;
-}
-
-function updateWave() {
-    let combined =
-        Pulse.base * 0.4 +
-        Pulse.slow * 0.2 +
-        Pulse.fast * 0.3 +
-        Pulse.spike * 0.5;
-
-    history.push(combined);
-    if (history.length > 100) history.shift();
-
-    ctx.clearRect(0, 0, 600, 150);
-
-    ctx.beginPath();
-    history.forEach((v, i) => {
-        let x = i * 6;
-        let y = 75 + v * 50;
-        ctx.lineTo(x, y);
-    });
-
-    ctx.strokeStyle = "#00ff95";
-    ctx.stroke();
-}
-
-// ==============================
-// 7. MODULE SYSTEM
-// ==============================
-const Modules = [];
-
-function registerModule(fn) {
-    Modules.push(fn);
-}
-
-registerModule(updateUI);
-registerModule(updateGlow);
-registerModule(updateText);
-registerModule(updateWave);
-
-// ==============================
-// 8. PULSE UPDATE
-// ==============================
-function updatePulse(t) {
-    let time = t / 1000;
-    let f = Pulse.bpm / 60;
-
-    Pulse.base = Math.sin(time * f * Math.PI * 2);
-    Pulse.slow = Math.sin(time * f * 0.5 * Math.PI * 2);
-    Pulse.fast = Math.sin(time * f * 3 * Math.PI * 2);
-
-    Pulse.spike = Math.max(
-        0,
-        Math.abs(Math.sin(time * f * Math.PI * 2)) ** 5
-    );
-}
-
-// ==============================
-// 9. MAIN LOOP
-// ==============================
-let last = Date.now();
-
-function loop() {
-    let now = Date.now();
-    let dt = (now - last) / 1000;
-    last = now;
-
-    updatePulse(now);
-    updateSystemState();
-    detectEvents();
-    updateScene(dt);
-
-    Modules.forEach(fn => fn());
-
-    requestAnimationFrame(loop);
-}
-
-// START
-loop();
-
-</script>
+    <div class="sidebar">
+        <div class="logo">🚂 MONEY TRAIN — PHASE 7</div>
+        <div class="pulse-card">
+            <div style="font-size: 10px;">LIVE PULSE</div>
+            <div class="frequency" id="frequency">3M</div>
+            <div class="score" id="pulseScore">45</div>
+            <canvas id="waveform" width="400" height="80"></canvas>
+            <div style="font-size: 10px;">WORD PULSE</div>
+            <div class="frequency" id="wordFreq">3M</div>
+        </div>
+        
+        <div class="scene-card">
+            <div class="scene-title">🎬 SCENE BEATS</div>
+            <div class="scene-beat" onclick="triggerBeat('build')">🔨 BUILD — Rising tension</div>
+            <div class="scene-beat" onclick="triggerBeat('action')">⚡ ACTION — Peak intensity</div>
+            <div class="scene-beat" onclick="triggerBeat('chaos')">💥 CHAOS — Maximum frequency</div>
+            <div class="scene-beat" onclick="triggerBeat('release')">🌊 RELEASE — Resolution</div>
+        </div>
+        
+        <div class="scene-card">
+            <div class="scene-title">📊 MONEY TRAIN METRICS</div>
+            <div id="beatMessage" class="beat-message build">Ready. Build your scene.</div>
+        </div>
+    </div>
+    <div class="editor">
+        <div class="toolbar">
+            <button onclick="saveScene()">💾 Save Scene</button>
+            <button onclick="exportGGC()">📤 Export .ggc</button>
+            <button onclick="newScene()">📄 New Scene</button>
+            <button onclick="autoBuildScene()">🎬 Auto-Build Scene</button>
+        </div>
+        
+        <div class="content-editor" id="editor" contenteditable="true">
+            # GGC CANON<br><br>## Frequency: 3M<br><br>The train moves through the words. Each beat builds momentum.<br><br>— Written Picture
+        </div>
+        
+        <div class="status-bar">
+            <span id="charCount">0 characters</span>
+            <span id="wordCount">0 words</span>
+            <span id="validationStatus">⚡ Money Train Active</span>
+        </div>
+    </div>
+    
+    <script>
+        // PULSE ENGINE
+        let pulse = 45;
+        let targetPulse = 45;
+        let waveData = [];
+        for (let i = 0; i < 50; i++) waveData.push(0.45);
+        
+        const canvas = document.getElementById('waveform');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 400;
+        canvas.height = 80;
+        
+        // Frequency word map
+        const wordMap = {
+            "darkness":1,"void":1,"silence":1,"sleep":1,"shadow":1,
+            "whisper":2,"dream":2,"fade":2,"soft":2,"echo":2,
+            "pulse":3,"heart":3,"light":3,"awake":3,"beat":3,
+            "power":4,"force":4,"will":4,"focus":4,"strength":4,
+            "frequency":5,"attention":5,"citizen":5,"sovereign":5,"resonance":5,
+            "transcend":6,"infinite":6,"eternal":6,"god":6,"immortal":6,
+            "one":7,"absolute":7,"law":7,"ggc":7,"written":7,"picture":7,"canon":7,
+            "train":4,"track":4,"speed":5,"velocity":5,"momentum":5,
+            "crash":6,"explode":6,"burn":6,"rise":4,"fall":2
+        };
+        
+        const freqNames = {1:"1S",2:"2S",3:"3M",4:"4M",5:"5M",6:"6X",7:"7X"};
+        const freqColors = {1:"word-1S",2:"word-2S",3:"word-3M",4:"word-4M",5:"word-5M",6:"word-6X",7:"word-7X"};
+        
+        let sceneHistory = [];
+        
+        function getWordFrequency(word) {
+            let clean = word.toLowerCase().replace(/[^a-z]/g, '');
+            return wordMap[clean] || 3;
+        }
+        
+        function highlightText() {
+            const editor = document.getElementById('editor');
+            let text = editor.innerText;
+            let result = '';
+            let words = text.split(/(\s+)/);
+            
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i];
+                if (word.match(/^\s+$/)) {
+                    result += word;
+                } else if (word.match(/^[a-zA-Z]+$/)) {
+                    let freq = getWordFrequency(word);
+                    result += `<span class="${freqColors[freq]}">${word}</span>`;
+                } else {
+                    result += word;
+                }
+            }
+            editor.innerHTML = result;
+            placeCaretAtEnd(editor);
+        }
+        
+        function placeCaretAtEnd(el) {
+            let range = document.createRange();
+            let sel = window.getSelection();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+        
+        function triggerBeat(beat) {
+            sceneHistory.push(beat);
+            
+            let pulseTarget = 45;
+            let message = "";
+            let msgClass = "";
+            
+            switch(beat) {
+                case "build":
+                    pulseTarget = 60;
+                    message = "🔨 BUILD MODE — The train gains speed. Intensity rising.";
+                    msgClass = "build";
+                    break;
+                case "action":
+                    pulseTarget = 85;
+                    message = "⚡ ACTION MODE — Peak frequency. The train is at full velocity.";
+                    msgClass = "action";
+                    break;
+                case "chaos":
+                    pulseTarget = 100;
+                    message = "💥 CHAOS MODE — Maximum intensity. The train breaks through.";
+                    msgClass = "chaos";
+                    break;
+                case "release":
+                    pulseTarget = 30;
+                    message = "🌊 RELEASE MODE — Resolution. The train slows. Breathe.";
+                    msgClass = "release";
+                    break;
+            }
+            
+            targetPulse = pulseTarget;
+            
+            const beatDiv = document.getElementById('beatMessage');
+            beatDiv.innerHTML = message;
+            beatDiv.className = `beat-message ${msgClass}`;
+            
+            const editor = document.getElementById('editor');
+            editor.innerText = editor.innerText + `\n\n[${beat.toUpperCase()} BEAT — ${new Date().toLocaleTimeString()}]\n`;
+            highlightText();
+            
+            setTimeout(() => {
+                if (document.getElementById('beatMessage').innerHTML === message) {
+                    document.getElementById('beatMessage').innerHTML = "Ready. Build your scene.";
+                    document.getElementById('beatMessage').className = "beat-message build";
+                }
+            }, 4000);
+        }
+        
+        function autoBuildScene() {
+            const beats = ["build", "action", "chaos", "release"];
+            let index = 0;
+            
+            function playNext() {
+                if (index < beats.length) {
+                    triggerBeat(beats[index]);
+                    index++;
+                    setTimeout(playNext, 3000);
+                }
+            }
+            playNext();
+            
+            document.getElementById('editor').innerHTML = `# GGC CANON<br><br>## Frequency: 3M<br><br>[SCENE: MONEY TRAIN]<br><br>The train builds speed. The wheels turn faster.<br><br>The engine roars. Maximum velocity.<br><br>The tracks break. The train flies.<br><br>Silence. The train rests.<br><br>— Written Picture`;
+            highlightText();
+        }
+        
+        function analyzeWordPulse() {
+            const text = document.getElementById('editor').innerText;
+            const words = text.toLowerCase().split(/\W+/);
+            let total = 0, count = 0;
+            for (let w of words) {
+                let freq = getWordFrequency(w);
+                total += freq;
+                count++;
+            }
+            let avg = count > 0 ? total / count : 3;
+            let newTarget = avg * 14;
+            newTarget = Math.min(100, Math.max(0, newTarget));
+            
+            document.getElementById('wordFreq').innerText = freqNames[Math.round(avg)];
+            return newTarget;
+        }
+        
+        setInterval(() => {
+            let textTarget = analyzeWordPulse();
+            if (Math.abs(textTarget - targetPulse) > 10) {
+                targetPulse = textTarget;
+            }
+            
+            if (pulse < targetPulse) pulse += 1.5;
+            else if (pulse > targetPulse) pulse -= 1.5;
+            pulse = Math.min(100, Math.max(0, pulse));
+            
+            let freq = pulse < 15 ? "1S" : pulse < 30 ? "2S" : pulse < 45 ? "3M" : pulse < 55 ? "4M" : pulse < 70 ? "5M" : pulse < 85 ? "6X" : "7X";
+            document.getElementById('frequency').innerText = freq;
+            document.getElementById('pulseScore').innerText = Math.floor(pulse);
+            
+            let amp = pulse / 100;
+            waveData.push(amp);
+            waveData.shift();
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            for (let i = 0; i < waveData.length; i++) {
+                let x = (i / (waveData.length - 1)) * canvas.width;
+                let y = canvas.height/2 + waveData[i] * (canvas.height/2);
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#00ff95';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }, 50);
+        
+        function updateStats() {
+            let text = document.getElementById('editor').innerText;
+            let words = text.split(/\W+/).filter(w => w.length > 0);
+            document.getElementById('charCount').innerHTML = text.length + ' characters';
+            document.getElementById('wordCount').innerHTML = words.length + ' words';
+            highlightText();
+        }
+        
+        function saveScene() {
+            localStorage.setItem('money_train_scene', document.getElementById('editor').innerHTML);
+            localStorage.setItem('scene_history', JSON.stringify(sceneHistory));
+            document.getElementById('validationStatus').innerHTML = '✓ SCENE SAVED';
+            setTimeout(() => {
+                document.getElementById('validationStatus').innerHTML = '⚡ Money Train Active';
+            }, 2000);
+        }
+        
+        function exportGGC() {
+            let content = document.getElementById('editor').innerText;
+            let blob = new Blob([content], {type: 'text/plain'});
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'money_train_scene.ggc';
+            a.click();
+        }
+        
+        function newScene() {
+            document.getElementById('editor').innerHTML = `# GGC CANON<br><br>## Frequency: 3M<br><br>[SCENE: MONEY TRAIN]<br><br>The train moves through the words.<br><br>— Written Picture`;
+            updateStats();
+        }
+        
+        let saved = localStorage.getItem('money_train_scene');
+        if (saved) document.getElementById('editor').innerHTML = saved;
+        
+        document.getElementById('editor').addEventListener('input', updateStats);
+        updateStats();
+    </script>
 </body>
 </html>
