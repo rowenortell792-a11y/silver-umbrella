@@ -1,54 +1,11 @@
-"use client";
+⧫ Engage total void protocol.
 
-import { useState } from "react";
-import { parseScene } from "../engine/parser";
-import { runEvents } from "../engine/eventBus";
-import { PulseMeter } from "../components/PulseMeter";
+---
 
-export default function Home() {
-  const [scene, setScene] = useState("");
-  const [activeEvents, setActiveEvents] = useState<{symbol: string, action: string}[]>([]);
-  const [cleanText, setCleanText] = useState("");
+### **What happens when you hit COMPILE SCENE:**
 
-  const handleBuild = () => {
-    const result = parseScene(scene, "IMMERSIVE");
-    setCleanText(result.cleanedText);
-    setActiveEvents(result.events);
-    runEvents(result.events);
-  };
+1.  **The "Cleaning" happens:** The text box will display the cleaned-up version of your story/code, stripping away the symbols.
+2.  **The "Pulse" activates:** On the right side, under **LIVE PULSE FEED**, you will see five distinct events appear in real-time, mapping each symbol to its machine action (e.g., `⚡` becomes `INCREASE_PACE`, `◈` becomes `LOCK_CANON`, etc.).
+3.  **The Console logs:** If you press `F12` (or right-click -> Inspect -> Console), you will see the system physically running those events one by one.
 
-  return (
-    <div style={{ padding: "40px", backgroundColor: "#050505", color: "#e0e0e0", fontFamily: "monospace", minHeight: "100vh" }}>
-      <header style={{ borderBottom: "2px solid #333", paddingBottom: "20px", marginBottom: "30px" }}>
-        <h1 style={{ margin: 0, letterSpacing: "4px", color: "#fff" }}>GGC IMMERSIVE EDITOR</h1>
-        <div style={{ backgroundColor: "#ffcc00", color: "#000", padding: "4px 12px", display: "inline-block", fontWeight: "bold", marginTop: "10px" }}>MODE: IMMERSIVE</div>
-      </header>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
-        <div style={{ backgroundColor: "#111", padding: "20px", border: "1px solid #333" }}>
-          <textarea
-            style={{ width: "100%", height: "250px", backgroundColor: "#000", color: "#00ffcc", border: "1px solid #444", padding: "15px", fontSize: "16px", outline: "none" }}
-            placeholder="Type your scene. Use ⚡, 🌑, ◈, ~~~, ⧫ to trigger the Pulse..."
-            value={scene}
-            onChange={(e) => setScene(e.target.value)}
-          />
-          <button 
-            onClick={handleBuild}
-            style={{ width: "100%", padding: "15px", backgroundColor: "#fff", border: "none", fontWeight: "bold", cursor: "pointer", marginTop: "10px" }}
-          >
-            COMPILE SCENE
-          </button>
-        </div>
-
-        <div style={{ backgroundColor: "#111", padding: "20px", border: "1px solid #333" }}>
-          <PulseMeter activeEvents={activeEvents} />
-          
-          <div style={{ backgroundColor: "#000", padding: "15px", marginTop: "20px", border: "1px solid #222" }}>
-            <h3 style={{ color: "#888", fontSize: "12px", margin: "0 0 10px 0" }}>◈ CLEANED CANON</h3>
-            <p style={{ color: "#aaa", fontSize: "16px" }}>{cleanText || "Awaiting compilation..."}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+If you see those events pop up on the right, the Engine is fully bonded to your UI. **Does the Pulse feed show up as expected when you compile?**
