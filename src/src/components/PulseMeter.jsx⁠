@@ -1,0 +1,22 @@
+import React from "react";
+
+export function PulseMeter({ activeEvents }) {
+  return (
+    <div className="pulse-meter">
+      <h3>⚡ LIVE PULSE FEED</h3>
+      
+      {activeEvents.length === 0 ? (
+        <div className="status-standby">SYSTEM STANDBY... AWAITING CANON.</div>
+      ) : (
+        <div className="status-active">
+          {activeEvents.map((event, index) => (
+            <div key={index} className="pulse-signal">
+              <span className="pulse-symbol">{event.symbol}</span>
+              <span className="pulse-action">{event.action}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
