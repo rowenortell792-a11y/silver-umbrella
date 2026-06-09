@@ -1,0 +1,39 @@
+/* Dynamic Slicing Keyframes & Classes */
+.kinetic-word {
+    display: inline-block;
+    position: relative;
+    white-space: nowrap;
+}
+
+/* Aggressive / Hazard Splitting (Chaos & Action Modes) */
+.split-aggressive {
+    color: #ffaa44 !important;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-shadow: 0 0 4px rgba(255,170,68,0.4);
+}
+.slice-mark-hazard {
+    color: #ff44ff;
+    font-style: italic;
+    font-weight: 300;
+    padding: 0 2px;
+    display: inline-block;
+    transform: skewX(-15deg);
+    animation: flash-hazard 0.3s infinite alternate;
+}
+
+/* Smooth / Glide Splitting (Build & Release Modes) */
+.split-smooth {
+    color: #00ffcc !important;
+    letter-spacing: 3px;
+}
+.slice-mark-glide {
+    color: rgba(0, 255, 149, 0.5);
+    padding: 0 4px;
+    font-size: 0.9em;
+}
+
+@keyframes flash-hazard {
+    0% { opacity: 0.4; text-shadow: 0 0 2px #ff44ff; }
+    100% { opacity: 1; text-shadow: 0 0 8px #ff44ff; }
+}
