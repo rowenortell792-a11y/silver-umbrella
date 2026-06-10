@@ -1,52 +1,59 @@
-{
-  "asset_meta": {
-    "asset_id": "GGC-SU-V1-SUPREME",
-    "product_name": "Silver Umbrella",
-    "collection": "Invisible Architecture",
-    "line_tier": "Structural Hardware / Luxury Engineered",
-    "version": "1.0.0",
-    "release_state": "PRODUCTION_READY"
-  },
-  "structural_guts": {
-    "canopy_architecture": {
-      "base_composite": "High-Reflectance Metallic Silver Membrane",
-      "thermal_shielding": "UV-Isolated Multi-Layer Thermal Block Core",
-      "surface_treatment": "Hydrophobic Nano-Shedding Coating",
-      "performance_metrics": {
-        "fluid_repelling": "Instantaneous Vector Shedding",
-        "heat_deflection_rating": "MAX_BARRIER_EFFICIENCY",
-        "uv_protection_factor": "UPF_50_PLUS"
-      }
-    },
-    "skeleton_matrix": {
-      "mast_core": "Reinforced Anodized Structural Aluminum",
-      "rib_system": "Tension-Tuned High-Velocity Carbon Fiber Arrays",
-      "joints_and_pivots": "Zero-Tolerance Anti-Inversion Nodes",
-      "stress_tolerances": {
-        "wind_resistance": "High-Velocity Gale Compliant",
-        "flex_recovery": "Instantaneous Auto-Alignment"
-      }
-    },
-    "user_interface_hardware": {
-      "grip_handle": "Tactile Matte Mechanical Ergonomic Shell",
-      "actuation_system": "Integrated Precision Mechanical Rapid Deployment Trigger",
-      "locking_mechanism": "Dual-Stage Secure Vault Pins",
-      "hardware_tier": "Prodigy Core Hardware Compatible"
+const fs = require('fs');
+const path = require('path');
+
+// Pulls the live Motherbot endpoint from your environment
+const MOTHERBOT_URL = process.env.MOTHERBOT_URL || 'https://clickdash-motherbot-v1.up.railway.app';
+
+async function syncToConstitutionalCitadel() {
+  console.log("\n===============================================================");
+  console.log("🔺 [CONSTITUTIONAL SYNC ACTIVATED] Reading Supreme Root Guts...");
+  console.log("===============================================================");
+
+  try {
+    const filePath = path.join(__dirname, 'umbrella.json');
+    if (!fs.existsSync(filePath)) {
+      throw new Error("Critical Failure: umbrella.json is missing from the work root root gut.");
     }
-  },
-  "ecosystem_governance": {
-    "system_routing": {
-      "parent_cluster": "GGC Universe Physical Assets",
-      "primary_controller": "Motherbot V1 Governance Matrix",
-      "network_status": "AUTHORIZED",
-      "dgclc_filing": {
-        "status": "FILED",
-        "regulatory_compliance": "APPROVED_LOGISTICS_LAYER"
-      }
-    },
-    "telemetry_hooks": {
-      "sync_endpoint": "/api/product/umbrella",
-      "persistence_layer": "MongoDB Layer Synced via Motherbox"
+    
+    // Read the supreme ultra umbrella specifications
+    const rawData = fs.readFileSync(filePath, 'utf8');
+    const supremePayload = JSON.parse(rawData);
+
+    console.log(`🔷 Asset Detected: ${supremePayload.asset_metadata.product_name}`);
+    console.log(`🔷 Core Version: ${supremePayload.asset_metadata.version}`);
+    console.log("📡 Transmitting complete matrix payload to Motherbot V1 for Law Audit...");
+
+    // Fire the entire supreme payload straight into Motherbot's constitutional gate
+    const response = await fetch(`${MOTHERBOT_URL}/api/governance/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(supremePayload)
+    });
+
+    const feedback = await response.json();
+
+    if (response.status === 422 || feedback.status === "GRIDLOCK_ISOLATION") {
+      console.error("\n🚨 [INTERNAL SYSTEM CRISIS: GRIDLOCK ISOLATION]");
+      console.error(`❌ REASON: ${feedback.reason}`);
+      console.error(`❌ ACTION REQUIRED: ${feedback.action_required}\n`);
+      process.exit(1);
     }
+
+    if (!response.ok) {
+      throw new Error(`Citadel gateway rejected communication with status: ${response.status}`);
+    }
+
+    console.log("\n✅ [SYNC COMPLETE - PERFECT CONSTITUTIONAL COMPLIANCE]");
+    console.log(`🔺 Ecosystem Status: ${feedback.constitution_alignment}`);
+    console.log(`🔺 Database Ref ID: ${feedback.governanceId}`);
+    console.log(`🔺 Node State: ${feedback.nodeStatus}`);
+    console.log(`🔺 Evolution Tier: ${feedback.nextEvolutionStep}\n`);
+
+  } catch (err) {
+    console.error("\n❌ [SYNC CRITICAL BREAKDOWN]:", err.message);
+    process.exit(1);
   }
 }
+
+// Execute the loop
+syncToConstitutionalCitadel();
