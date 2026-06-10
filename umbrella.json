@@ -1,21 +1,30 @@
 {
   "productId": "GGC-HARDWARE-SU-01",
   "productName": "Silver Umbrella",
-  "collection": "Invisible Architecture",
-  "specifications": {
+  "line": "Invisible Architecture",
+  "version": "1.0.0",
+  "structural_guts": {
     "canopy": {
-      "material": "High-Reflectance Metallic Silver Composite",
-      "coating": "Hydrophobic Nano-Shield",
-      "protection": "UV-Isolated Thermal Block"
+      "base_material": "High-Reflectance Metallic Silver Composite Membrane",
+      "lining": "UV-Isolated Thermal Block Layer",
+      "treatment": "Hydrophobic Nano-Coating",
+      "properties": "Instantaneous Fluid Shedding & Heat Deflection"
     },
-    "framework": {
-      "shaft": "Anodized Structural Aluminum",
-      "ribs": "Reinforced Carbon-Fiber Matrix",
-      "mechanism": "Precision Mechanical Deployment Trigger"
+    "skeleton": {
+      "mast": "Anodized Structural Aluminum Core",
+      "rib_matrix": "Reinforced Tension-Tuned Carbon Fiber",
+      "joints": "Zero-Tolerance High-Velocity Inversion Resistance"
+    },
+    "interface": {
+      "grip": "Tactile Engineered Matte Shell",
+      "actuator": "Integrated Mechanical Deployment Trigger",
+      "hardware_tier": "Prodigy Core Capable"
     }
   },
-  "governance": {
-    "tier": "Prodigy Core Compatible",
-    "dgclcStatus": "FILED"
+  "governance_routing": {
+    "cluster_family": "GGC Universe Physical Assets",
+    "governanceId": "PENDING_MOTHERBOT_SYNC",
+    "dgclc_filing_status": "FILED",
+    "system_state": "AUTHORIZED"
   }
 }
