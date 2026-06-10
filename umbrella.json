@@ -1,0 +1,21 @@
+{
+  "productId": "GGC-HARDWARE-SU-01",
+  "productName": "Silver Umbrella",
+  "collection": "Invisible Architecture",
+  "specifications": {
+    "canopy": {
+      "material": "High-Reflectance Metallic Silver Composite",
+      "coating": "Hydrophobic Nano-Shield",
+      "protection": "UV-Isolated Thermal Block"
+    },
+    "framework": {
+      "shaft": "Anodized Structural Aluminum",
+      "ribs": "Reinforced Carbon-Fiber Matrix",
+      "mechanism": "Precision Mechanical Deployment Trigger"
+    }
+  },
+  "governance": {
+    "tier": "Prodigy Core Compatible",
+    "dgclcStatus": "FILED"
+  }
+}
