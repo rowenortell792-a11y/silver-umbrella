@@ -1,30 +1,52 @@
 {
-  "productId": "GGC-HARDWARE-SU-01",
-  "productName": "Silver Umbrella",
-  "line": "Invisible Architecture",
-  "version": "1.0.0",
+  "asset_meta": {
+    "asset_id": "GGC-SU-V1-SUPREME",
+    "product_name": "Silver Umbrella",
+    "collection": "Invisible Architecture",
+    "line_tier": "Structural Hardware / Luxury Engineered",
+    "version": "1.0.0",
+    "release_state": "PRODUCTION_READY"
+  },
   "structural_guts": {
-    "canopy": {
-      "base_material": "High-Reflectance Metallic Silver Composite Membrane",
-      "lining": "UV-Isolated Thermal Block Layer",
-      "treatment": "Hydrophobic Nano-Coating",
-      "properties": "Instantaneous Fluid Shedding & Heat Deflection"
+    "canopy_architecture": {
+      "base_composite": "High-Reflectance Metallic Silver Membrane",
+      "thermal_shielding": "UV-Isolated Multi-Layer Thermal Block Core",
+      "surface_treatment": "Hydrophobic Nano-Shedding Coating",
+      "performance_metrics": {
+        "fluid_repelling": "Instantaneous Vector Shedding",
+        "heat_deflection_rating": "MAX_BARRIER_EFFICIENCY",
+        "uv_protection_factor": "UPF_50_PLUS"
+      }
     },
-    "skeleton": {
-      "mast": "Anodized Structural Aluminum Core",
-      "rib_matrix": "Reinforced Tension-Tuned Carbon Fiber",
-      "joints": "Zero-Tolerance High-Velocity Inversion Resistance"
+    "skeleton_matrix": {
+      "mast_core": "Reinforced Anodized Structural Aluminum",
+      "rib_system": "Tension-Tuned High-Velocity Carbon Fiber Arrays",
+      "joints_and_pivots": "Zero-Tolerance Anti-Inversion Nodes",
+      "stress_tolerances": {
+        "wind_resistance": "High-Velocity Gale Compliant",
+        "flex_recovery": "Instantaneous Auto-Alignment"
+      }
     },
-    "interface": {
-      "grip": "Tactile Engineered Matte Shell",
-      "actuator": "Integrated Mechanical Deployment Trigger",
-      "hardware_tier": "Prodigy Core Capable"
+    "user_interface_hardware": {
+      "grip_handle": "Tactile Matte Mechanical Ergonomic Shell",
+      "actuation_system": "Integrated Precision Mechanical Rapid Deployment Trigger",
+      "locking_mechanism": "Dual-Stage Secure Vault Pins",
+      "hardware_tier": "Prodigy Core Hardware Compatible"
     }
   },
-  "governance_routing": {
-    "cluster_family": "GGC Universe Physical Assets",
-    "governanceId": "PENDING_MOTHERBOT_SYNC",
-    "dgclc_filing_status": "FILED",
-    "system_state": "AUTHORIZED"
+  "ecosystem_governance": {
+    "system_routing": {
+      "parent_cluster": "GGC Universe Physical Assets",
+      "primary_controller": "Motherbot V1 Governance Matrix",
+      "network_status": "AUTHORIZED",
+      "dgclc_filing": {
+        "status": "FILED",
+        "regulatory_compliance": "APPROVED_LOGISTICS_LAYER"
+      }
+    },
+    "telemetry_hooks": {
+      "sync_endpoint": "/api/product/umbrella",
+      "persistence_layer": "MongoDB Layer Synced via Motherbox"
+    }
   }
 }
